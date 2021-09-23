@@ -20,6 +20,26 @@ contract EvryFactory is IEvryFactory, Ownable {
         uint256
     );
 
+    event feeToPlatformAddressUpdated(
+        address sender,
+        address newFeeToPlatform
+    );
+
+    event adminUpdated(
+        address sender,
+        address newAdmin
+    );
+
+    event platformFeeUpdated(
+        address sender,
+        uint256 newPlatformFee
+    );
+
+    event liquidityFeeUpdated(
+        address sender,
+        uint256 newliquidityFee
+    );
+
     modifier onlyAdmin() {
         require(admin == msg.sender, "Evry: FORBIDDEN");
         _;
@@ -45,6 +65,7 @@ contract EvryFactory is IEvryFactory, Ownable {
         override
         returns (address pair)
     {
+        require(feeToPlatform != address(0), "EvryRouter: INVALID_TREASURY_ADDRESS");
         require(tokenA != tokenB, "Evry: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), "Evry: ZERO_ADDRESS");
@@ -62,19 +83,24 @@ contract EvryFactory is IEvryFactory, Ownable {
     }
     
     function setFeeToPlatform(address _feeToPlatform) external onlyOwner override {
+        require(_feeToPlatform != address(0), "EvryRouter: INVALID_TREASURY_ADDRESS");
         feeToPlatform = _feeToPlatform;
+        emit feeToPlatformAddressUpdated(msg.sender, _feeToPlatform);
     }
 
     function setPlatformFee(uint256 feeBasis) external onlyOwner override {
         feePlatformBasis = feeBasis;
+        emit platformFeeUpdated(msg.sender, feeBasis);
     }
 
     function setLiquidityFee(uint256 feeBasis) external onlyOwner override {
         feeLiquidityBasis = feeBasis;
+        emit liquidityFeeUpdated(msg.sender, feeBasis);
     }
 
     function transferAdmin(address newAdmin) external onlyAdmin override {
         admin = newAdmin;
+        emit adminUpdated(msg.sender, newAdmin);
     }
 
     function getFeeConfiguration() external override view returns (address _feeToPlatform, uint256 _feePlatformBasis, uint256 _feeLiquidityBasis)

@@ -19,9 +19,6 @@ interface IEvryPair is IEvryERC20{
     function swap(
         uint[2] memory amountOut,
         address to, 
-        address feeToPlatform, 
-        uint feePlatformBasis, 
-        uint feeLiquidityBasis,
         bytes calldata data ) 
     external;
     function skim(address to) external;

@@ -139,9 +139,6 @@ contract EvryPair is IEvryPair, EvryERC20 {
     function swap(
             uint[2] memory amountOut, 
             address to, 
-            address feeToPlatform, 
-            uint feePlatformBasis, 
-            uint feeLiquidityBasis,
             bytes calldata data
         ) 
             external 
@@ -149,14 +146,17 @@ contract EvryPair is IEvryPair, EvryERC20 {
             override 
         {
 
-        FeeConfiguration memory feeConfiguration = FeeConfiguration({
-            feeToPlatform: feeToPlatform,
-            feePlatformBasis: feePlatformBasis,
-            feeLiquidityBasis: feeLiquidityBasis,
-            amount0Out: amountOut[0],
-            amount1Out: amountOut[1]
-        });
-
+        FeeConfiguration memory feeConfiguration;
+        {   // scope to avoid stack too deep errors
+            (address _feeToPlatform, uint256 _feePlatformBasis, uint256 _feeLiquidityBasis) = IEvryFactory(factory).getFeeConfiguration();
+            feeConfiguration = FeeConfiguration({
+                feeToPlatform: _feeToPlatform,
+                feePlatformBasis: _feePlatformBasis,
+                feeLiquidityBasis: _feeLiquidityBasis,
+                amount0Out: amountOut[0],
+                amount1Out: amountOut[1]
+            });
+        }
         require(feeConfiguration.amount0Out > 0 || feeConfiguration.amount1Out > 0, 'Evry: INSUFFICIENT_OUTPUT_AMOUNT');
         
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings

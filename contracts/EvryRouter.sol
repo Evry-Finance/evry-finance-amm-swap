@@ -212,9 +212,6 @@ contract EvryRouter is IEvryRouter2 {
     // requires the initial amount to have already been sent to the first pair
     function _swap(uint[] memory amounts, address[] memory path, address _to) internal virtual {
             
-        (address _feeToPlatform, uint256 _feePlatformBasis, uint256 _feeLiquidityBasis) = IEvryFactory(factory).getFeeConfiguration();
-        require(_feeToPlatform != address(0), "EvryRouter: INVALID_TREASURY_ADDRESS");
-
         for (uint i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
             (address token0,) = EvryLibrary.sortTokens(input, output);
@@ -223,7 +220,7 @@ contract EvryRouter is IEvryRouter2 {
             address to = i < path.length - 2 ? EvryLibrary.pairFor(factory, output, path[i + 2]) : _to;
             uint[2] memory amountOuts = [amount0Out,amount1Out];
             IEvryPair(EvryLibrary.pairFor(factory, input, output)).swap(
-                amountOuts, to, _feeToPlatform, _feePlatformBasis, _feeLiquidityBasis, new bytes(0)
+                amountOuts, to, new bytes(0)
             );
         }
     }
@@ -342,8 +339,6 @@ contract EvryRouter is IEvryRouter2 {
             feeConfiguration.feeLiquidityBasis = _feeLiquidityBasis;
         }
         
-        require(feeConfiguration.feeToPlatform != address(0), "EvryRouter: INVALID_TREASURY_ADDRESS");
-
         for (uint i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
             (address token0,) = EvryLibrary.sortTokens(input, output);
@@ -361,10 +356,7 @@ contract EvryRouter is IEvryRouter2 {
             {
                 address to = i < path.length - 2 ? EvryLibrary.pairFor(factory, output, path[i + 2]) : _to;
                 uint[2] memory amountOut = [amount0Out,amount1Out];
-                address _feetoPlatform = feeConfiguration.feeToPlatform;
-                uint _feePlatformBasis = feeConfiguration.feePlatformBasis;
-                uint _feeLiquidityBasis = feeConfiguration.feeLiquidityBasis;
-                pair.swap(amountOut, to, _feetoPlatform, _feePlatformBasis, _feeLiquidityBasis, new bytes(0));
+                pair.swap(amountOut, to, new bytes(0));
             }
         }
     }
