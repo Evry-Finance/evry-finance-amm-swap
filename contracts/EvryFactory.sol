@@ -65,7 +65,7 @@ contract EvryFactory is IEvryFactory, Ownable {
         override
         returns (address pair)
     {
-        require(feeToPlatform != address(0), "EvryRouter: INVALID_TREASURY_ADDRESS");
+        require(feeToPlatform != address(0), "Evry: INVALID_TREASURY_ADDRESS");
         require(tokenA != tokenB, "Evry: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), "Evry: ZERO_ADDRESS");
@@ -83,17 +83,19 @@ contract EvryFactory is IEvryFactory, Ownable {
     }
     
     function setFeeToPlatform(address _feeToPlatform) external onlyOwner override {
-        require(_feeToPlatform != address(0), "EvryRouter: INVALID_TREASURY_ADDRESS");
+        require(_feeToPlatform != address(0), "Evry: INVALID_TREASURY_ADDRESS");
         feeToPlatform = _feeToPlatform;
         emit feeToPlatformAddressUpdated(msg.sender, _feeToPlatform);
     }
 
     function setPlatformFee(uint256 feeBasis) external onlyOwner override {
+        require(feeBasis <= 10000, "Evry: INVALID_RANGE_OF_FEE");
         feePlatformBasis = feeBasis;
         emit platformFeeUpdated(msg.sender, feeBasis);
     }
 
     function setLiquidityFee(uint256 feeBasis) external onlyOwner override {
+        require(feeBasis <= 10000, "Evry: INVALID_RANGE_OF_FEE");
         feeLiquidityBasis = feeBasis;
         emit liquidityFeeUpdated(msg.sender, feeBasis);
     }
